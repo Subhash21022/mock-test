@@ -2,6 +2,27 @@ const express = require('express');
 const router = express.Router();
 const { readDb, writeDb } = require('../jsonDb');
 
+// Seeded PRNG (mulberry32) — produces deterministic random numbers from a seed
+function mulberry32(seed) {
+    return function() {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+}
+
+// Fisher-Yates shuffle using a seeded PRNG
+function seededShuffle(array, seed) {
+    const shuffled = [...array];
+    const rng = mulberry32(seed);
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
 module.exports = () => {
 
     // GET /api/tests - List all tests
@@ -35,14 +56,27 @@ module.exports = () => {
     });
 
     // GET /api/tests/:id - Get test with all questions/problems
+    // If ?student_id=<id> is provided and the test is a quiz, questions are
+    // shuffled in a deterministic order unique to that student+test combination.
     router.get('/:id', (req, res) => {
         try {
             const { id } = req.params;
+            const { student_id } = req.query;
             const db = readDb();
             const test = db.tests.find(t => String(t.id) === String(id));
             
             if (!test) {
                 return res.status(404).json({ message: 'Test not found' });
+            }
+
+            // If a student is requesting a quiz, shuffle the questions
+            if (student_id && test.test_type === 'quiz' && test.questions && test.questions.length > 0) {
+                const seed = parseInt(student_id, 10) * 1000 + parseInt(id, 10);
+                const shuffledQuestions = seededShuffle(test.questions, seed).map((q, i) => ({
+                    ...q,
+                    question_number: i + 1  // renumber after shuffle
+                }));
+                return res.json({ ...test, questions: shuffledQuestions });
             }
 
             res.json(test);

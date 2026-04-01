@@ -182,7 +182,7 @@ const TestRunner: React.FC = () => {
           }
       }
 
-      const response = await fetch(`${API_BASE}/api/tests/${id}`).catch(() => null);
+      const response = await fetch(`${API_BASE}/api/tests/${id}?student_id=${user._id}`).catch(() => null);
       if (response && response.ok) {
         const data = await response.json();
         setTest(data);

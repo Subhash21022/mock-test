@@ -58,8 +58,22 @@ const OnboardStudent = () => {
         }
     };
 
-    const handleDownloadTemplate = () => {
-        window.open(`${API_BASE_URL}/api/students/template`, '_blank');
+    const handleDownloadTemplate = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/students/template`);
+            if (!res.ok) throw new Error('Failed to download template');
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'student_template.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            setAlert({ type: 'error', message: 'Failed to download template.' });
+        }
     };
 
     const handleFileSelect = (e: any) => {
