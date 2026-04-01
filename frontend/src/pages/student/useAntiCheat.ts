@@ -32,11 +32,46 @@ export function useAntiCheat({
           }
           return newCount;
         });
+      } else if (document.visibilityState === 'visible') {
+        // Enforce full screen when coming back
+        enterFullscreen();
       }
     };
 
+    const handleWindowBlur = () => {
+        if (!isTerminated.current) {
+            setTabSwitches(prev => {
+                const newCount = prev + 1;
+                if (newCount > maxTabSwitches) {
+                    isTerminated.current = true;
+                    onTerminate('Exceeded maximum allowed window focus losses.');
+                } else {
+                    onWarning('You lost focus of the test window!', maxTabSwitches - newCount + 1);
+                }
+                return newCount;
+            });
+        }
+    };
+
+    // Prevent cheating tricks
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+        }
+    };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleWindowBlur);
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        window.removeEventListener("blur", handleWindowBlur);
+        document.removeEventListener("contextmenu", handleContextMenu);
+        document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [maxTabSwitches, onTerminate, onWarning]);
 
   // Full Screen Tracking

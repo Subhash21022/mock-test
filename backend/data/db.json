@@ -194,6 +194,52 @@
           "problem_number": 1
         }
       ]
+    },
+    {
+      "id": 4,
+      "title": "example",
+      "description": "",
+      "test_type": "quiz",
+      "duration_minutes": 5,
+      "created_by": 1,
+      "pass_key": "123",
+      "is_published": true,
+      "created_at": "2026-04-01T07:11:17.880Z",
+      "questions": [
+        {
+          "question_text": "what is the print statement in js?",
+          "option_a": "console.log",
+          "option_b": "print()",
+          "option_c": "print f",
+          "option_d": "return",
+          "correct_option": "A",
+          "marks": 1,
+          "question_number": 1
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "dvsv",
+      "description": "vd vd d",
+      "test_type": "quiz",
+      "duration_minutes": 60,
+      "created_by": 1,
+      "pass_key": "2",
+      "is_published": true,
+      "created_at": "2026-04-01T07:14:59.466Z",
+      "questions": [
+        {
+          "question_text": "fvsvsv",
+          "option_a": "fvfvf",
+          "option_b": "fvfsv",
+          "option_c": "fvfsv",
+          "option_d": "fvsf",
+          "correct_option": "A",
+          "marks": 1,
+          "question_number": 1
+        }
+      ]
     }
   ],
   "test_results": [
@@ -277,6 +323,33 @@
       "total_marks": 10,
       "status": "terminated",
       "submitted_at": "2026-04-01T05:22:58.019Z"
+    },
+    {
+      "id": 10,
+      "test_id": 4,
+      "student_id": 2,
+      "score": 1,
+      "total_marks": 1,
+      "status": "completed",
+      "submitted_at": "2026-04-01T07:11:41.570Z"
+    },
+    {
+      "id": 11,
+      "test_id": 5,
+      "student_id": 2,
+      "score": 0,
+      "total_marks": 1,
+      "status": "terminated",
+      "submitted_at": "2026-04-01T07:21:57.723Z"
+    },
+    {
+      "id": 12,
+      "test_id": 5,
+      "student_id": 2,
+      "score": 0,
+      "total_marks": 1,
+      "status": "terminated",
+      "submitted_at": "2026-04-01T07:21:57.753Z"
     }
   ]
 }

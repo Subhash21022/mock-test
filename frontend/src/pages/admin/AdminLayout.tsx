@@ -13,7 +13,8 @@ const AdminLayout = () => {
 
     const navItems = [
         { path: '/admin', label: 'Dashboard', exact: true },
-        { path: '/admin/create-test', label: 'Manage Quizzes' },
+        { path: '/admin/create-test', label: 'Create Quiz' },
+        { path: '/admin/manage-tests', label: 'Manage Quizzes' },
         { path: '/admin/performance', label: 'Reports' },
         { path: '/admin/onboard', label: 'Onboard Student' },
         { path: '/admin/manage-students', label: 'Manage Students' },

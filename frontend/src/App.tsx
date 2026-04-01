@@ -14,6 +14,7 @@ import OnboardStudent from './pages/admin/OnboardStudent';
 import ManageStudents from './pages/admin/ManageStudents';
 import UploadDocuments from './pages/admin/UploadDocuments';
 import ViewDocuments from './pages/student/ViewDocuments';
+import ManageTests from './pages/admin/ManageTests';
 import './index.css';
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminHome />} />
           <Route path="create-test" element={<CreateTest />} />
+          <Route path="manage-tests" element={<ManageTests />} />
           <Route path="performance" element={<Performance />} />
           <Route path="onboard" element={<OnboardStudent />} />
           <Route path="manage-students" element={<ManageStudents />} />

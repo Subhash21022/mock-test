@@ -73,6 +73,13 @@ const TestRunner: React.FC = () => {
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
   const [warningMessage, setWarningMessage] = useState('');
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
+  
+  // Quiz Submission state
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmInput, setConfirmInput] = useState('');
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizScore, setQuizScore] = useState(0);
+  const [quizTotalMarks, setQuizTotalMarks] = useState(0);
 
   // Code editor state
   const [code, setCode] = useState('');
@@ -127,7 +134,11 @@ const TestRunner: React.FC = () => {
         if (prev <= 1) {
           clearInterval(timerRef.current!);
           alert('⏰ Time is up! Auto-submitting your assessment.');
-          handleFinalSubmit(true);
+          if (test?.test_type === 'quiz') {
+             handleFinalSubmit(true);
+          } else {
+             handleFinalSubmit(true);
+          }
           return 0;
         }
         return prev - 1;
@@ -163,7 +174,7 @@ const TestRunner: React.FC = () => {
       const resultRes = await fetch(`${API_BASE}/api/results?student_id=${user._id}&test_id=${id}`);
       if (resultRes.ok) {
           const results = await resultRes.json();
-          if (results.length > 0) {
+          if (results.length > 0 && results.some((r: any) => r.status === 'completed' || r.status === 'terminated')) {
               alert("You have already completed this assessment.");
               if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); }
               navigate('/student');
@@ -368,6 +379,8 @@ solution();
               }
               return sum;
           }, 0);
+          setQuizScore(score);
+          setQuizTotalMarks(total_marks);
       }
 
       await fetch(`${API_BASE}/api/results`, {
@@ -382,14 +395,32 @@ solution();
         })
       }).catch(() => null);
 
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
+      if (test.test_type === 'quiz') {
+         setQuizSubmitted(true);
+         setShowConfirmModal(false);
+         if (!force) {
+            alert('Your submission was successfull.');
+         }
+      } else {
+         if (document.fullscreenElement) {
+           document.exitFullscreen().catch(() => {});
+         }
+         navigate('/student');
       }
-      navigate('/student');
     } catch (err) {
       console.error("Submit error", err);
-      navigate('/student');
+      if (test?.test_type !== 'quiz') {
+        navigate('/student');
+      }
     }
+  };
+
+  const handleQuizConfirmSubmit = () => {
+      if (confirmInput !== 'SUBMIT') {
+          alert('Please type SUBMIT to confirm.');
+          return;
+      }
+      handleFinalSubmit(false);
   };
 
   // ── Keyboard shortcuts ──
@@ -1102,6 +1133,13 @@ solution();
       </header>
 
       <main style={{ padding: '32px', flex: 1, maxWidth: '800px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+        {quizSubmitted && (
+            <div style={{ marginBottom: '24px', background: 'rgba(16, 185, 129, 0.1)', padding: '24px', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.3)', textAlign: 'center' }}>
+                <h2 style={{ color: '#10b981', margin: '0 0 8px' }}>Test Completed</h2>
+                <p style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>Your Score: {quizScore} / {quizTotalMarks}</p>
+            </div>
+        )}
+
         {test?.questions?.length && test.questions.length > 0 ? (
           test.questions.map((q: any) => (
             <div key={q.id || q.question_number} style={{ marginBottom: '24px', background: 'var(--student-card-bg)', border: '1px solid var(--student-border)', padding: '32px', borderRadius: '10px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
@@ -1109,23 +1147,54 @@ solution();
                 Question {q.question_number}: {q.question_text}
               </h3>
               <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {['a', 'b', 'c', 'd'].map(opt => (
-                  <label key={opt} style={{ 
-                    display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', 
-                    background: quizAnswers[q.id || q.question_number] === opt ? 'rgba(56, 189, 248, 0.1)' : 'var(--student-bg)', 
-                    padding: '12px', borderRadius: '6px', 
-                    border: `1px solid ${quizAnswers[q.id || q.question_number] === opt ? '#38bdf8' : 'var(--student-border)'}` 
-                  }}>
-                    <input 
-                      type="radio" 
-                      name={`question-${q.id || q.question_number}`} 
-                      value={opt} 
-                      checked={quizAnswers[q.id || q.question_number] === opt}
-                      onChange={() => setQuizAnswers(prev => ({...prev, [q.id || q.question_number]: opt}))}
-                    />
-                    <span>{q[`option_${opt}`]}</span>
-                  </label>
-                ))}
+                {['a', 'b', 'c', 'd'].map(opt => {
+                  const isSelected = quizAnswers[q.id || q.question_number] === opt;
+                  const isCorrectAns = q.correct_option?.toLowerCase() === opt;
+                  
+                  let optBg = 'var(--student-bg)';
+                  let optBorder = 'var(--student-border)';
+                  let optColor = 'var(--student-text)';
+
+                  if (quizSubmitted) {
+                     if (isCorrectAns) {
+                         optBg = 'rgba(16, 185, 129, 0.15)';
+                         optBorder = '#10b981';
+                     } else if (isSelected && !isCorrectAns) {
+                         optBg = 'rgba(239, 68, 68, 0.15)';
+                         optBorder = '#ef4444';
+                     } else {
+                         optColor = 'var(--student-text-muted)';
+                     }
+                  } else if (isSelected) {
+                     optBg = 'rgba(56, 189, 248, 0.1)';
+                     optBorder = '#38bdf8';
+                  }
+
+                  return (
+                    <label key={opt} style={{ 
+                        display: 'flex', alignItems: 'center', gap: '8px', 
+                        cursor: quizSubmitted ? 'default' : 'pointer', 
+                        background: optBg, padding: '12px', borderRadius: '6px', border: `1px solid ${optBorder}`,
+                        color: optColor, transition: '0.2s'
+                    }}>
+                        <input 
+                        type="radio" 
+                        name={`question-${q.id || q.question_number}`} 
+                        value={opt} 
+                        checked={isSelected}
+                        onChange={() => {
+                            if (!quizSubmitted) {
+                                setQuizAnswers(prev => ({...prev, [q.id || q.question_number]: opt}))
+                            }
+                        }}
+                        disabled={quizSubmitted}
+                        />
+                        <span>{q[`option_${opt}`]}</span>
+                        {quizSubmitted && isCorrectAns && <span style={{ marginLeft: 'auto', color: '#10b981', fontWeight: 'bold' }}>✓ Correct</span>}
+                        {quizSubmitted && isSelected && !isCorrectAns && <span style={{ marginLeft: 'auto', color: '#ef4444', fontWeight: 'bold' }}>✗ Incorrect</span>}
+                    </label>
+                  );
+                })}
               </div>
             </div>
           ))
@@ -1137,10 +1206,48 @@ solution();
       </main>
 
       <footer style={{ padding: '16px 32px', background: 'var(--student-card-bg)', borderTop: '1px solid var(--student-border)', display: 'flex', justifyContent: 'flex-end', position: 'sticky', bottom: 0, boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-         <button className="btn-accent" style={{ width: 'auto', backgroundColor: '#0F172A' }} onClick={() => handleFinalSubmit(false)}>
-            Submit Assessment
-         </button>
+         {!quizSubmitted ? (
+             <button className="btn-accent" style={{ width: 'auto', backgroundColor: '#0F172A' }} onClick={() => setShowConfirmModal(true)}>
+                Submit Assessment
+             </button>
+         ) : (
+             <button className="btn-accent" style={{ width: 'auto', backgroundColor: '#3b82f6' }} onClick={() => {
+                 if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+                 navigate('/student');
+             }}>
+                Return to Dashboard
+             </button>
+         )}
       </footer>
+
+      {showConfirmModal && (
+        <div style={{ 
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            background: 'rgba(0, 0, 0, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99999 
+        }}>
+            <div style={{ background: 'var(--student-card-bg)', padding: '32px', borderRadius: '12px', width: '400px', border: '1px solid var(--student-border)' }}>
+                <h2 style={{ marginTop: 0 }}>Confirm Submission</h2>
+                <p style={{ color: 'var(--student-text-muted)' }}>Are you sure you want to submit the test? You will not be able to change your answers.</p>
+                <div style={{ margin: '20px 0' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>Type SUBMIT to confirm</label>
+                    <input 
+                        type="text" 
+                        value={confirmInput} 
+                        onChange={(e) => setConfirmInput(e.target.value)} 
+                        autoFocus
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleQuizConfirmSubmit();
+                        }}
+                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--student-border)', background: 'var(--student-bg)', color: 'var(--student-text)', boxSizing: 'border-box' }}
+                    />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                    <button onClick={() => setShowConfirmModal(false)} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--student-border)', color: 'var(--student-text)', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+                    <button onClick={handleQuizConfirmSubmit} style={{ padding: '8px 16px', background: '#3b82f6', border: 'none', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Confirm Submit</button>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 };
