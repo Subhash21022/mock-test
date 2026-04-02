@@ -87,9 +87,9 @@ app.post('/api/login', (req, res) => {
         const { username, password } = req.body;
         const db = readDb();
 
-        const user = db.users.find(u => u.registrationNumber === username);
+        const user = db.users.find(u => u.emailId === username);
 
-        if (user && user.rollNumber === password) {
+        if (user && user.registrationNumber === password) {
             res.json({
                 _id: user.id,
                 email: user.emailId,
@@ -103,7 +103,7 @@ app.post('/api/login', (req, res) => {
                 message: 'Login successful'
             });
         } else {
-            res.status(401).json({ message: 'Invalid registration number or roll number' });
+            res.status(401).json({ message: 'Invalid email id or registration number' });
         }
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
