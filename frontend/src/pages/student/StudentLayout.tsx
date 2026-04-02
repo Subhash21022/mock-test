@@ -6,6 +6,13 @@ import './student.css';
 const StudentLayout: React.FC = () => {
   const navigate = useNavigate();
   
+  React.useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser || storedUser === 'undefined') {
+      navigate('/login');
+    }
+  }, [navigate]);
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/login');

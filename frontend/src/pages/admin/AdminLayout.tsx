@@ -1,4 +1,4 @@
-
+import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import './admin.css';
 import devbeezLogo from '../../assets/devbeez-logo.png';
@@ -6,8 +6,24 @@ import devbeezLogo from '../../assets/devbeez-logo.png';
 const AdminLayout = () => {
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (!storedUser || storedUser === 'undefined') {
+            navigate('/login');
+            return;
+        }
+        try {
+            const user = JSON.parse(storedUser);
+            if (user.role !== 'admin') {
+                navigate('/login');
+            }
+        } catch {
+            navigate('/login');
+        }
+    }, [navigate]);
 
     const handleLogout = () => {
+        localStorage.removeItem('user');
         navigate('/login');
     };
 
