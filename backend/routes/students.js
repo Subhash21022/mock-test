@@ -148,7 +148,7 @@ module.exports = () => {
                 const name = (row['FULL NAME'] || row['Name'] || row['name'] || '').toString().trim();
                 const emailId = (row['EMAIL (LOGIN ID)'] || row['EMAIL'] || row['Email'] || row['email'] || '').toString().trim();
                 const rollNumber = (row['ROLL NO'] || row['ROLL NO (PASSWORD)'] || row['Roll No'] || row['rollNo'] || row['Roll no'] || '').toString().trim();
-                const registrationNumber = (row['REGISTER NUMBER (PASSWORD)'] || row['REGISTER NUMBER (USERNAME)'] || row['REGISTER NUMBER'] || row['REG NO'] || row['Reg No'] || row['regNo'] || '').toString().trim();
+                const registrationNumber = (row['REGISTER NUMBER (PASSWORD)'] || row['REGISTER NUMBER(PASSWORD)'] || row['REGISTER NUMBER (USERNAME)'] || row['REGISTER NUMBER'] || row['REG NO'] || row['Reg No'] || row['regNo'] || '').toString().trim();
                 const section = (row['SECTION'] || row['CLASS / SECTION'] || row['Section'] || row['class'] || row['CLASS'] || row['Class'] || '').toString().trim();
                 const rowDepartment = (row['DEPARTMENT'] || row['Department'] || row['department'] || '').toString().trim();
 
