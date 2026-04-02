@@ -93,7 +93,7 @@ const LoginPage = () => {
                                 label="Username / Reg No"
                                 name="username"
                                 type="text"
-                                placeholder="admin@gmail.com or student@gmail.com"
+                                placeholder="roll@gmail.com"
                                 value={formData.username}
                                 onChange={handleChange}
                                 required
@@ -102,7 +102,7 @@ const LoginPage = () => {
                                 label="Password"
                                 name="password"
                                 type="password"
-                                placeholder="123"
+                                placeholder="312324xxx"
                                 value={formData.password}
                                 onChange={handleChange}
                                 required

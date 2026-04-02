@@ -55,7 +55,7 @@ module.exports = () => {
 
     // GET /api/students/template - Download CSV template
     router.get('/template', (req, res) => {
-        const csvContent = 'S.No,Class,Roll No,Reg No,Name,Email\n1,A,R1001,REG2001,SAMPLE STUDENT,sample@gmail.com\n';
+        const csvContent = 'FULL NAME,COLLEGE EMAIL,REGISTER NUMBER (USERNAME),ROLL NO (PASSWORD),DEPARTMENT,CLASS / SECTION\nStudent full name,22cs001@college.edu,REG2001,R1001,CSE,A\n';
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename=student_template.csv');
         res.send(csvContent);
@@ -119,11 +119,12 @@ module.exports = () => {
             let currentId = db.users.length > 0 ? Math.max(...db.users.map(u => u.id)) + 1 : 1;
 
             for (const row of parsed.data) {
-                const name = row['Name'] || row['name'] || '';
-                const emailId = row['Email'] || row['email'] || '';
-                const rollNumber = row['Roll No'] || row['rollNo'] || row['RollNo'] || '';
-                const registrationNumber = row['Reg No'] || row['regNo'] || row['RegNo'] || '';
-                const classSection = row['Class'] || row['class'] || row['classSection'] || '';
+                const name = row['FULL NAME'] || row['Name'] || row['name'] || '';
+                const emailId = row['COLLEGE EMAIL'] || row['Email'] || row['email'] || '';
+                const rollNumber = row['ROLL NO (PASSWORD)'] || row['Roll No'] || row['rollNo'] || row['RollNo'] || '';
+                const registrationNumber = row['REGISTER NUMBER (USERNAME)'] || row['Reg No'] || row['regNo'] || row['RegNo'] || '';
+                const classSection = row['CLASS / SECTION'] || row['Class'] || row['class'] || row['classSection'] || '';
+                const rowDepartment = row['DEPARTMENT'] || row['Department'] || row['department'];
 
                 if (!name || !registrationNumber) {
                     skippedCount++;
@@ -143,7 +144,7 @@ module.exports = () => {
                     role: 'student',
                     rollNumber: rollNumber.trim(),
                     registrationNumber: registrationNumber.trim(),
-                    department,
+                    department: rowDepartment ? rowDepartment.trim() : department,
                     classSection: classSection.trim()
                 });
                 insertedCount++;

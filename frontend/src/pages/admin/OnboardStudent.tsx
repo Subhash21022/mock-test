@@ -249,7 +249,7 @@ const OnboardStudent = () => {
                         ) : (
                             <div>
                                 <div className="admin-upload-zone-text">Click to upload CSV file</div>
-                                <div className="admin-upload-zone-sub">Columns: S.No, Class, Roll No, Reg No, Name, Email</div>
+                                <div className="admin-upload-zone-sub">Columns: FULL NAME, COLLEGE EMAIL, REGISTER NUMBER (USERNAME), ROLL NO (PASSWORD), DEPARTMENT, CLASS / SECTION</div>
                             </div>
                         )}
                         <input

@@ -91,7 +91,7 @@ const CreateTest = () => {
 
     // Quiz handlers
     const addQuestion = () => {
-        if (questions.length >= 20) return;
+        if (questions.length >= 30) return;
         setQuestions([...questions, emptyQuizQuestion()]);
     };
 
@@ -164,10 +164,10 @@ const CreateTest = () => {
             const parsedQuestions = parseTextToQuestions(text);
             if (parsedQuestions.length > 0) {
                 if (questions.length === 1 && questions[0].question_text === '') {
-                    setQuestions(parsedQuestions.slice(0, 20));
+                    setQuestions(parsedQuestions.slice(0, 30));
                 } else {
                     const combined = [...questions, ...parsedQuestions];
-                    setQuestions(combined.slice(0, 20));
+                    setQuestions(combined.slice(0, 30));
                 }
                 setAlert({ type: 'success', message: `Successfully extracted ${parsedQuestions.length} questions.` });
             } else {
@@ -328,7 +328,7 @@ const CreateTest = () => {
             {testType === 'quiz' && (
                 <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                        <h3 className="admin-section-title" style={{ margin: 0 }}>Questions ({questions.length}/20)</h3>
+                        <h3 className="admin-section-title" style={{ margin: 0 }}>Questions ({questions.length}/30)</h3>
                         <div style={{ display: 'flex', gap: '8px' }}>
                              <input type="file" accept=".txt, .docx" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
                              <button className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => fileInputRef.current?.click()} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', fontSize: '13px' }}>
@@ -407,10 +407,10 @@ const CreateTest = () => {
                             </div>
                         </div>
                     ))}
-                    {questions.length < 20 && (
+                    {questions.length < 30 && (
                         <button className="admin-add-btn" onClick={addQuestion}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            Add Question ({questions.length}/20)
+                            Add Question ({questions.length}/30)
                         </button>
                     )}
                 </div>
