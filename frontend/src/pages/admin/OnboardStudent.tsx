@@ -158,7 +158,7 @@ const OnboardStudent = () => {
                         Single Student Enrolment
                     </h3>
                     <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '24px' }}>
-                        Register number is used as the initial password.
+                        Email ID is used as the login username and Register Number is the initial password.
                     </p>
 
                     <form onSubmit={handleSingleSubmit} className="admin-form">
@@ -168,17 +168,17 @@ const OnboardStudent = () => {
                                 <input className="admin-form-input" name="name" placeholder="Student full name" value={formData.name} onChange={handleFormChange} required />
                             </div>
                             <div className="admin-form-group">
-                                <label className="admin-form-label">College Email</label>
-                                <input className="admin-form-input" name="emailId" type="email" placeholder="22cs001@college.edu" value={formData.emailId} onChange={handleFormChange} required />
+                                <label className="admin-form-label">Email (Login ID)</label>
+                                <input className="admin-form-input" name="emailId" type="email" placeholder="student@gmail.com" value={formData.emailId} onChange={handleFormChange} required />
                             </div>
                         </div>
                         <div className="admin-form-row">
                             <div className="admin-form-group">
-                                <label className="admin-form-label">Register Number (Username)</label>
-                                <input className="admin-form-input" name="registrationNumber" placeholder="e.g. REG2001" value={formData.registrationNumber} onChange={handleFormChange} required />
+                                <label className="admin-form-label">Register Number (Password)</label>
+                                <input className="admin-form-input" name="registrationNumber" placeholder="312324xxx" value={formData.registrationNumber} onChange={handleFormChange} required />
                             </div>
                             <div className="admin-form-group">
-                                <label className="admin-form-label">Roll No (Password)</label>
+                                <label className="admin-form-label">Roll No</label>
                                 <input className="admin-form-input" name="rollNumber" placeholder="e.g. R1001" value={formData.rollNumber} onChange={handleFormChange} />
                             </div>
                         </div>
@@ -190,7 +190,7 @@ const OnboardStudent = () => {
                                 </select>
                             </div>
                             <div className="admin-form-group">
-                                <label className="admin-form-label">Class / Section</label>
+                                <label className="admin-form-label">Section</label>
                                 <select className="admin-form-select" name="classSection" value={formData.classSection} onChange={handleFormChange}>
                                     {SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
@@ -249,7 +249,7 @@ const OnboardStudent = () => {
                         ) : (
                             <div>
                                 <div className="admin-upload-zone-text">Click to upload CSV or Excel file</div>
-                                <div className="admin-upload-zone-sub">Columns: FULL NAME, COLLEGE EMAIL, REGISTER NUMBER (USERNAME), ROLL NO (PASSWORD), DEPARTMENT, CLASS / SECTION</div>
+                                <div className="admin-upload-zone-sub">Columns: FULL NAME, EMAIL (LOGIN ID), REGISTER NUMBER (PASSWORD), ROLL NO, DEPARTMENT, SECTION</div>
                             </div>
                         )}
                         <input

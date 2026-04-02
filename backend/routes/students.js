@@ -56,7 +56,7 @@ module.exports = () => {
 
     // GET /api/students/template - Download CSV template
     router.get('/template', (req, res) => {
-        const csvContent = 'FULL NAME,COLLEGE EMAIL,REGISTER NUMBER (USERNAME),ROLL NO (PASSWORD),DEPARTMENT,CLASS / SECTION\nStudent full name,22cs001@college.edu,REG2001,R1001,CSE,A\n';
+        const csvContent = 'FULL NAME,EMAIL (LOGIN ID),REGISTER NUMBER (PASSWORD),ROLL NO,DEPARTMENT,SECTION\nStudent full name,student@gmail.com,312324xxx,R1001,CSE,A\n';
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename=student_template.csv');
         res.send(csvContent);
@@ -133,19 +133,21 @@ module.exports = () => {
             let currentId = db.users.length > 0 ? Math.max(...db.users.map(u => u.id)) + 1 : 1;
 
             for (const row of parsedData) {
-                const name = row['FULL NAME'] || row['Name'] || row['name'] || '';
-                const emailId = row['COLLEGE EMAIL'] || row['Email'] || row['email'] || '';
-                const rollNumber = row['ROLL NO (PASSWORD)'] || row['Roll No'] || row['rollNo'] || row['RollNo'] || '';
-                const registrationNumber = row['REGISTER NUMBER (USERNAME)'] || row['Reg No'] || row['regNo'] || row['RegNo'] || '';
-                const classSection = row['CLASS / SECTION'] || row['Class'] || row['class'] || row['classSection'] || '';
-                const rowDepartment = row['DEPARTMENT'] || row['Department'] || row['department'];
+                // Robust mapping: check for exact headers and common variations
+                const name = (row['FULL NAME'] || row['Name'] || row['name'] || '').toString().trim();
+                const emailId = (row['EMAIL (LOGIN ID)'] || row['EMAIL'] || row['Email'] || row['email'] || '').toString().trim();
+                const rollNumber = (row['ROLL NO'] || row['ROLL NO (PASSWORD)'] || row['Roll No'] || row['rollNo'] || '').toString().trim();
+                const registrationNumber = (row['REGISTER NUMBER (PASSWORD)'] || row['REGISTER NUMBER (USERNAME)'] || row['Reg No'] || row['regNo'] || '').toString().trim();
+                const section = (row['SECTION'] || row['CLASS / SECTION'] || row['Section'] || row['class'] || '').toString().trim();
+                const rowDepartment = (row['DEPARTMENT'] || row['Department'] || row['department'] || '').toString().trim();
 
-                if (!name || !registrationNumber) {
+                if (!name || (!emailId && !registrationNumber)) {
                     skippedCount++;
+                    errors.push({ row: row, error: "Missing required fields (Name, Email, or Register Number)" });
                     continue;
                 }
 
-                if (db.users.some(u => u.registrationNumber === registrationNumber.trim())) {
+                if (registrationNumber && db.users.some(u => u.registrationNumber === registrationNumber)) {
                     skippedCount++;
                     errors.push({ registrationNumber, error: "Registration Number already exists" });
                     continue;
@@ -157,9 +159,9 @@ module.exports = () => {
                     emailId: emailId.trim(),
                     role: 'student',
                     rollNumber: rollNumber.trim(),
-                    registrationNumber: registrationNumber.trim(),
-                    department: rowDepartment ? rowDepartment.trim() : department,
-                    classSection: classSection.trim()
+                    registrationNumber: registrationNumber,
+                    department: rowDepartment || department,
+                    classSection: section
                 });
                 insertedCount++;
             }
