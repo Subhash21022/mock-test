@@ -125,6 +125,17 @@ module.exports = () => {
                 return res.status(400).json({ message: 'Unsupported file type. Please upload a CSV or Excel file.' });
             }
 
+            // Normalize header keys: trim spaces from keys so that " REGISTER NUMBER " becomes "REGISTER NUMBER"
+            parsedData = parsedData.map(row => {
+                const normalizedRow = {};
+                for (const key in row) {
+                    if (Object.prototype.hasOwnProperty.call(row, key)) {
+                        normalizedRow[key.trim()] = row[key];
+                    }
+                }
+                return normalizedRow;
+            });
+
             const db = readDb();
             let insertedCount = 0;
             let skippedCount = 0;
@@ -136,9 +147,9 @@ module.exports = () => {
                 // Robust mapping: check for exact headers and common variations
                 const name = (row['FULL NAME'] || row['Name'] || row['name'] || '').toString().trim();
                 const emailId = (row['EMAIL (LOGIN ID)'] || row['EMAIL'] || row['Email'] || row['email'] || '').toString().trim();
-                const rollNumber = (row['ROLL NO'] || row['ROLL NO (PASSWORD)'] || row['Roll No'] || row['rollNo'] || '').toString().trim();
-                const registrationNumber = (row['REGISTER NUMBER (PASSWORD)'] || row['REGISTER NUMBER (USERNAME)'] || row['Reg No'] || row['regNo'] || '').toString().trim();
-                const section = (row['SECTION'] || row['CLASS / SECTION'] || row['Section'] || row['class'] || '').toString().trim();
+                const rollNumber = (row['ROLL NO'] || row['ROLL NO (PASSWORD)'] || row['Roll No'] || row['rollNo'] || row['Roll no'] || '').toString().trim();
+                const registrationNumber = (row['REGISTER NUMBER (PASSWORD)'] || row['REGISTER NUMBER (USERNAME)'] || row['REGISTER NUMBER'] || row['REG NO'] || row['Reg No'] || row['regNo'] || '').toString().trim();
+                const section = (row['SECTION'] || row['CLASS / SECTION'] || row['Section'] || row['class'] || row['CLASS'] || row['Class'] || '').toString().trim();
                 const rowDepartment = (row['DEPARTMENT'] || row['Department'] || row['department'] || '').toString().trim();
 
                 if (!name || (!emailId && !registrationNumber)) {
