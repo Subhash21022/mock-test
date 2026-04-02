@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const Papa = require('papaparse');
+const xlsx = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 const { readDb, writeDb } = require('../jsonDb');
@@ -103,12 +104,25 @@ module.exports = () => {
             }
 
             const department = req.body.department || 'CSE';
-            const csvFile = fs.readFileSync(req.file.path, 'utf8');
-            const parsed = Papa.parse(csvFile, { header: true, skipEmptyLines: true });
+            const fileExt = path.extname(req.file.originalname).toLowerCase();
+            let parsedData = [];
 
-            if (parsed.errors.length > 0) {
+            if (fileExt === '.csv') {
+                const csvFile = fs.readFileSync(req.file.path, 'utf8');
+                const parsed = Papa.parse(csvFile, { header: true, skipEmptyLines: true });
+                if (parsed.errors.length > 0) {
+                    fs.unlinkSync(req.file.path);
+                    return res.status(400).json({ message: 'CSV parsing error', errors: parsed.errors });
+                }
+                parsedData = parsed.data;
+            } else if (fileExt === '.xlsx' || fileExt === '.xls') {
+                const workbook = xlsx.readFile(req.file.path);
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                parsedData = xlsx.utils.sheet_to_json(sheet, { defval: "" });
+            } else {
                 fs.unlinkSync(req.file.path);
-                return res.status(400).json({ message: 'CSV parsing error', errors: parsed.errors });
+                return res.status(400).json({ message: 'Unsupported file type. Please upload a CSV or Excel file.' });
             }
 
             const db = readDb();
@@ -118,7 +132,7 @@ module.exports = () => {
             
             let currentId = db.users.length > 0 ? Math.max(...db.users.map(u => u.id)) + 1 : 1;
 
-            for (const row of parsed.data) {
+            for (const row of parsedData) {
                 const name = row['FULL NAME'] || row['Name'] || row['name'] || '';
                 const emailId = row['COLLEGE EMAIL'] || row['Email'] || row['email'] || '';
                 const rollNumber = row['ROLL NO (PASSWORD)'] || row['Roll No'] || row['rollNo'] || row['RollNo'] || '';

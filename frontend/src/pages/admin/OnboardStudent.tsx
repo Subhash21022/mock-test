@@ -90,7 +90,7 @@ const OnboardStudent = () => {
 
     const handleBulkUpload = async () => {
         if (!selectedFile) {
-            setAlert({ type: 'error', message: 'Please select a CSV file.' });
+            setAlert({ type: 'error', message: 'Please select a CSV or Excel file.' });
             return;
         }
 
@@ -126,7 +126,7 @@ const OnboardStudent = () => {
         <div>
             <div className="admin-page-header">
                 <h1 className="admin-greeting">Onboard Student</h1>
-                <p className="admin-greeting-sub">Enrol students individually or upload in bulk via CSV.</p>
+                <p className="admin-greeting-sub">Enrol students individually or upload in bulk via CSV or Excel.</p>
             </div>
 
             {alert && (
@@ -214,7 +214,7 @@ const OnboardStudent = () => {
                                 Bulk Student Upload
                             </h3>
                             <p style={{ fontSize: '13px', color: '#94A3B8' }}>
-                                Upload a CSV file. Students are auto-sorted and assigned by class.
+                                Upload a CSV or Excel (.xlsx) file. Students are auto-sorted and assigned by class.
                             </p>
                         </div>
                         <button className="admin-btn admin-btn-secondary" onClick={handleDownloadTemplate}>
@@ -248,14 +248,14 @@ const OnboardStudent = () => {
                             </div>
                         ) : (
                             <div>
-                                <div className="admin-upload-zone-text">Click to upload CSV file</div>
+                                <div className="admin-upload-zone-text">Click to upload CSV or Excel file</div>
                                 <div className="admin-upload-zone-sub">Columns: FULL NAME, COLLEGE EMAIL, REGISTER NUMBER (USERNAME), ROLL NO (PASSWORD), DEPARTMENT, CLASS / SECTION</div>
                             </div>
                         )}
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept=".csv"
+                            accept=".csv,.xlsx,.xls"
                             style={{ display: 'none' }}
                             onChange={handleFileSelect}
                         />
